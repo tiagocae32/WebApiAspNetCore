@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+
+        //Probando la api de tareas con jquery ajax
+        $(document).ready(function () {
+
+            var listaTareas = $("#listaLibros")
+
+            $("#btn").click(function () {
+                $.ajax({
+                    type: "GET",
+                    url: "https://localhost:44378/api/libros",
+                    dataType: "json",
+                    success: function (data) {
+                        listaTareas.empty();
+                        $.each(data, function (index,value) {
+                            //console.log(value)
+                            var tarea = value.nombre + " " + value.descripcion;
+                            listaTareas.append("<li>" + tarea + "</li>")
+                        })
+                    }
+                })
+            })
+
+        })
+    </script>
+
+</head>
+<body>
+    <button id="btn">Obtener todos los libros</button>
+
+    <ul id="listaLibros">
+    </ul>
+
+</body>
+</html>
