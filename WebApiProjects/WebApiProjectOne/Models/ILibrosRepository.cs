@@ -14,13 +14,13 @@ namespace WebApiProjectOne.Models
 
         Task<IEnumerable<Libros>> getAllBooks();
 
-        Task<IEnumerable<Libros>> getBook(int id);
+        Task<Libros> getBook(int id);
 
-        Task<Libros> ingresarLibro(Libros libro);
+        Task<Libros> addBook(Libros libro);
 
-        Task<Libros> actualizarLibro(Libros libro);
+        Task<Libros> updateBook(Libros libro);
 
-        Task<Libros> eliminarLibro(int id);
+        Task<Libros> deleteBook(int id);
 
 
     }

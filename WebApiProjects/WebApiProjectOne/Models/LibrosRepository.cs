@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebApiProjectOne.Context;
 
+
 namespace WebApiProjectOne.Models
 {
     public class LibrosRepository : ILibrosRepository
@@ -65,51 +66,45 @@ namespace WebApiProjectOne.Models
 
 
         //////Obteniendo un libro por su id////////////
-        public async Task<IEnumerable<Libros>> getBook(int id)
+        public async Task<Libros> getBook(int id)
         {
-            var userId = id;
+            /* var userId = id;
 
-            var tarea = await Context.dataLibros
-                 .FromSqlInterpolated($"EXECUTE dbo.ObtenerLibroPorId {userId}")
-                 .ToListAsync();
+              var tarea = await Context.dataLibros
+                   .FromSqlInterpolated($"EXECUTE dbo.ObtenerLibroPorId {userId}")
+                   .ToListAsync();
 
-            return tarea.Count > 0 ? (IEnumerable<Libros>)tarea : null;
+              return tarea.Count > 0 ? (IEnumerable<Libros>)tarea : null;*/
+
+            return await Context.dataLibros.FirstOrDefaultAsync(l => l.Id == id);
         }
         ////////-------------------------/////////////
 
 
         //////Agregando un libro///////////////////////
-        public async Task<Libros> ingresarLibro(Libros libro)
+        public async Task<Libros> addBook(Libros libro)
         {
             var result = await Context.dataLibros.AddAsync(libro);
             await Context.SaveChangesAsync();
-
             return result.Entity;
         }
         //////////////-------------///////////////////
 
 
         ////Actualizando un libro///////////////////
-        public async Task<Libros> actualizarLibro(Libros libro)
+        public async Task<Libros> updateBook(Libros libroEdit)
         {
-            var libroId = await Context.dataLibros.FirstOrDefaultAsync(x => x.Id == libro.Id);
 
-            if (libroId != null)
-            {
-                libroId.Nombre = libro.Nombre;
-                libroId.Descripcion = libro.Descripcion;
-                libroId.Genero = libro.Genero;
-                libroId.Autor = libro.Autor;
-                await Context.SaveChangesAsync();
-                return libroId;
-            }
-            return null;
+            var Libro = Context.dataLibros.Attach(libroEdit);
+            Libro.State = EntityState.Modified;
+            await Context.SaveChangesAsync();
+            return libroEdit;
         }
         /////////---------------//////////////////////
 
 
         //////Eliminando un libro///////////////////
-        public async Task<Libros> eliminarLibro(int id)
+        public async Task<Libros> deleteBook(int id)
         {
             var tareaId = await Context.dataLibros.FirstOrDefaultAsync(x => x.Id == id);
 

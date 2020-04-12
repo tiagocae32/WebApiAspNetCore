@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApiProjectOne.Context;
 using WebApiProjectOne.Models;
+using WebApiProjectOne.ViewModels;
 
 namespace WebApiProjectOne.Controllers
 {
@@ -13,10 +16,11 @@ namespace WebApiProjectOne.Controllers
     public class LibrosController : ControllerBase
     {
         private ILibrosRepository librosRepository;
-
+  
         public LibrosController(ILibrosRepository LibrosRepository)
         {
             librosRepository = LibrosRepository;
+
         }
 
 
@@ -74,7 +78,7 @@ namespace WebApiProjectOne.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<Libros>> addBook([FromBody]Libros libro)
+        public async Task<ActionResult<Libros>> addBook([FromBody]AddBookViewModel libro)
         {
             try
             {
@@ -83,7 +87,6 @@ namespace WebApiProjectOne.Controllers
                     return BadRequest();
                 }
 
-                //Chequeando que ese libro no haya sido ingresado
                 var libroDb = await librosRepository.getLibroDb(libro.Nombre);
                 if (libroDb != null)
                 {
@@ -91,41 +94,86 @@ namespace WebApiProjectOne.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var libroAAgregar = await librosRepository.ingresarLibro(libro);
+                Libros newLibro = new Libros()
+                {
+                    Nombre = libro.Nombre,
+                    Descripcion = libro.Descripcion,
+                    Genero = libro.Genero,
+                    Autor = libro.Autor
+                };
+
+                var libroAAgregar = await librosRepository.addBook(newLibro);
                 return CreatedAtAction(nameof(getBook), new { id = libroAAgregar.Id }, libroAAgregar);
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error...");
             }
+
         }
 
-
-        [HttpPut("actualizar/{id:int}")]
-        public async Task<ActionResult<Libros>> updateBook(int id, [FromBody]Libros libro)
+        //Vista para editar un libro/////
+        [HttpGet("actualizar/{id:int}")]
+        public async Task<ActionResult<Libros>> updateBook(int id)
         {
             try
             {
-                if (id != libro.Id)
-                {
-                   return BadRequest();
-                }
+                Libros libroAActualizar = await librosRepository.getBook(id);
 
-                var libroAActualizar = librosRepository.getBook(id);
                 if (libroAActualizar == null)
                 {
                     return NotFound($"El libro  con el id {id} no ha sido encontrado");
                 }
 
-                await librosRepository.actualizarLibro(libro);
-                return RedirectToAction("getAllBooks");
+                EditBookViewModel infoLibro = new EditBookViewModel()
+                {
+                    Id = libroAActualizar.Id,
+                    Nombre = libroAActualizar.Nombre,
+                    Descripcion = libroAActualizar.Descripcion,
+                    Genero = libroAActualizar.Genero,
+                    Autor = libroAActualizar.Autor
+                };
+
+                return Ok(infoLibro);
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error...");
-            }
+            }      
         }
 
+        //Accion de editar un libro//////////
+        [HttpPut("actualizar/{id:int}")]
+        public async Task<ActionResult<Libros>> updateBook([FromBody]EditBookViewModel libro)
+        {
+            try
+            {
+                 /*if (id != libro.Id)
+                 {
+                    return BadRequest();
+                 }*/
+
+                Libros libroAActualizar = await librosRepository.getBook(libro.Id);
+
+                if (libroAActualizar == null)
+                {
+                    return NotFound($"El libro  con el id {libro.Id} no ha sido encontrado");
+                }
+
+                libroAActualizar.Nombre = libro.Nombre;
+                libroAActualizar.Descripcion = libro.Descripcion;
+                libroAActualizar.Genero = libro.Genero;
+                libroAActualizar.Autor = libro.Autor;
+                            
+               return Ok(await librosRepository.updateBook(libroAActualizar));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error...");
+            }      
+
+        }
+        
 
         [HttpDelete("eliminar/{id:int}")]
         public async Task<ActionResult<Libros>> deleteBook(int id)
@@ -139,7 +187,7 @@ namespace WebApiProjectOne.Controllers
                     return NotFound($"El libro  con el id {id} no ha sido encontrado");
                 }
 
-                await librosRepository.eliminarLibro(id);
+                await librosRepository.deleteBook(id);
                 return RedirectToAction("getAllBooks");
             }
             catch (Exception)
