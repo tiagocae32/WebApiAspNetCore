@@ -35,7 +35,7 @@ namespace WebApiProjectOne.Controllers
                 {
                     return Ok(result);
                 }
-                return NotFound("Libro no encontrado");
+                return NotFound("No hay ningun libro que coincida con el criterio aplicado para esta busqueda ");
             }
             catch (Exception)
             {
@@ -164,8 +164,9 @@ namespace WebApiProjectOne.Controllers
                 libroAActualizar.Descripcion = libro.Descripcion;
                 libroAActualizar.Genero = libro.Genero;
                 libroAActualizar.Autor = libro.Autor;
-                            
-               return Ok(await librosRepository.updateBook(libroAActualizar));
+
+               var result = await librosRepository.updateBook(libroAActualizar);
+               return Ok(result);
             }
             catch (Exception)
             {

@@ -10,15 +10,16 @@ namespace WebApiProjectOne.ViewModels
     public class AddBookViewModel
     {
 
-        [Required]
+        [Required(ErrorMessage = "El campo nombre es requerido")]
         public string Nombre { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Debe ingresar una descripcion")]
+        [MinLength(10, ErrorMessage = "La descripcion ingresada debe contener al menos 10 caracteres")]
         public string Descripcion { get; set; }
 
         public string Autor { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Debe seleccionar uno de los campos que hay")]
         public GeneroLibro Genero { get; set; }
     }
 }
