@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,11 +19,10 @@ namespace WebApiProjectOne.Controllers
     public class LibrosController : ControllerBase
     {
         private ILibrosRepository librosRepository;
-  
+
         public LibrosController(ILibrosRepository LibrosRepository)
         {
             librosRepository = LibrosRepository;
-
         }
 
 
@@ -44,6 +46,7 @@ namespace WebApiProjectOne.Controllers
         }
 
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]//restringiendo al usuario el consumo de este endpoint en base a si nos proporciona el token de registro o token de login
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Libros>>> getAllBooks()
         {
@@ -139,42 +142,78 @@ namespace WebApiProjectOne.Controllers
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error...");
-            }      
+            }
         }
 
         //Accion de editar un libro//////////
         [HttpPut("actualizar/{id:int}")]
-        public async Task<ActionResult<Libros>> updateBook([FromBody]EditBookViewModel libro)
+        public async Task<ActionResult<Libros>> updateBook(int id, [FromBody]EditBookViewModel libro)
         {
             try
             {
-                 /*if (id != libro.Id)
-                 {
+                if (id != libro.Id)
+                {
                     return BadRequest();
-                 }*/
+                }
 
-                Libros libroAActualizar = await librosRepository.getBook(libro.Id);
+                Libros libroAActualizar = await librosRepository.getBook(id);
 
                 if (libroAActualizar == null)
                 {
-                    return NotFound($"El libro  con el id {libro.Id} no ha sido encontrado");
+                    return NotFound($"El libro  con el id {id} no ha sido encontrado");
                 }
 
+                libroAActualizar.Id = id;
                 libroAActualizar.Nombre = libro.Nombre;
                 libroAActualizar.Descripcion = libro.Descripcion;
                 libroAActualizar.Genero = libro.Genero;
                 libroAActualizar.Autor = libro.Autor;
 
-               var result = await librosRepository.updateBook(libroAActualizar);
-               return Ok(result);
+                var result = await librosRepository.updateBook(libroAActualizar);
+                return Ok(result);
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error...");
-            }      
+            }
 
         }
-        
+
+
+       /* [HttpPatch("actualizacionParcial/{id:int}")]
+        public async Task<ActionResult> actualizacionParcial(int id, [FromBody] JsonPatchDocument<Libros> jsonPatchDocument){
+
+
+            if(jsonPatchDocument == null)
+            {
+                return BadRequest();
+            }
+
+            var libroAActualizar = await librosRepository.getBook(id);
+
+
+            if (libroAActualizar == null)
+            {
+                return NotFound($"El libro  con el id {id} no ha sido encontrado");
+            }
+
+            jsonPatchDocument.ApplyTo(libroAActualizar, ModelState);
+
+            var isValid = TryValidateModel(libroAActualizar);
+
+
+            if (!isValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+           var result =  await librosRepository.updateBook(libroAActualizar);
+
+            return Ok(result); 
+        }
+        */
+
 
         [HttpDelete("eliminar/{id:int}")]
         public async Task<ActionResult<Libros>> deleteBook(int id)

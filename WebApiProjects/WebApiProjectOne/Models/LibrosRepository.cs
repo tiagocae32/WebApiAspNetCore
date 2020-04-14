@@ -66,17 +66,17 @@ namespace WebApiProjectOne.Models
 
 
         //////Obteniendo un libro por su id////////////
-        public async Task<Libros> getBook(int id)
+        public async Task<Libros>getBook(int id)
         {
-            /* var userId = id;
+            var userId = id;
 
-              var tarea = await Context.dataLibros
-                   .FromSqlInterpolated($"EXECUTE dbo.ObtenerLibroPorId {userId}")
-                   .ToListAsync();
+             var tarea = await Context.dataLibros
+                  .FromSqlInterpolated($"EXECUTE dbo.ObtenerLibroPorId {userId}")
+                  .ToListAsync();
 
-              return tarea.Count > 0 ? (IEnumerable<Libros>)tarea : null;*/
+            return tarea.Count > 0 ? tarea.First() : null; 
 
-            return await Context.dataLibros.FirstOrDefaultAsync(l => l.Id == id);
+            //return await Context.dataLibros.FirstOrDefaultAsync(l => l.Id == id);
         }
         ////////-------------------------/////////////
 

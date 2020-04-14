@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApiProjectOne.Context;
 
 namespace WebApiProjectOne.Migrations
 {
     [DbContext(typeof(DBLibroContext))]
-    partial class DBLibroContextModelSnapshot : ModelSnapshot
+    [Migration("20200414014954_MigrationIdentity")]
+    partial class MigrationIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
